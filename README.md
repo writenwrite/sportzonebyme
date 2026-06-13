@@ -321,13 +321,36 @@ sportzone/
 
 ## 📚 Documentation
 
+<table>
+<tr>
+<td><strong>🇮🇩 Bahasa Indonesia</strong></td>
+<td><strong>🇬🇧 English</strong></td>
+</tr>
+<tr>
+<td>
+
 | Document | Description |
 |----------|-------------|
-| [PROCESS.md](./PROCESS.md) | 📖 **Panduan lengkap proses dari awal sampai selesai** |
-| [DOCUMENTATION.md](./DOCUMENTATION.md) | Comprehensive feature documentation |
-| [FLOW.md](./FLOW.md) | User journey & transaction flow diagrams |
-| [API.md](./API.md) | REST API reference with examples |
+| [PROCESS.md](./PROCESS.md) | 📖 Panduan lengkap proses dari awal sampai selesai |
+| [DOCUMENTATION.md](./DOCUMENTATION.md) | Dokumentasi lengkap fitur & fungsi |
+| [FLOW.md](./FLOW.md) | Diagram alur pengguna & transaksi |
+| [API.md](./API.md) | Referensi REST API dengan contoh |
+| [DEPLOYMENT.md](./DEPLOYMENT.md) | Panduan deployment ke production |
+
+</td>
+<td>
+
+| Document | Description |
+|----------|-------------|
+| [PROCESS_EN.md](./PROCESS_EN.md) | 📖 Complete process guide from start to finish |
+| [DOCUMENTATION_EN.md](./DOCUMENTATION_EN.md) | Comprehensive feature & function documentation |
+| [FLOW_EN.md](./FLOW_EN.md) | User journey & transaction flow diagrams |
+| [API_EN.md](./API_EN.md) | REST API reference with examples |
 | [DEPLOYMENT.md](./DEPLOYMENT.md) | Production deployment guide |
+
+</td>
+</tr>
+</table>
 
 ---
 
