@@ -7,6 +7,8 @@ import { fetchCart, clearCart } from '../features/cartSlice';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import AddressForm from '../components/AddressForm';
+import StripeProvider from '../components/StripeProvider';
+import PaymentForm from '../components/PaymentForm';
 
 interface Address {
   id: string;
@@ -35,6 +37,11 @@ export default function Checkout() {
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [useNewAddress, setUseNewAddress] = useState(false);
 
+  // Stripe state
+  const [clientSecret, setClientSecret] = useState('');
+  const [orderId, setOrderId] = useState('');
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+
   const [shippingAddress, setShippingAddress] = useState({
     label: 'Home',
     street: '',
@@ -46,10 +53,10 @@ export default function Checkout() {
   });
 
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !paymentSuccess) {
       navigate('/cart');
     }
-  }, [items, navigate]);
+  }, [items, navigate, paymentSuccess]);
 
   useEffect(() => {
     fetchSavedAddresses();
@@ -113,7 +120,7 @@ export default function Checkout() {
     setStep(2);
   };
 
-  const handlePayment = async () => {
+  const handleCreateOrder = async () => {
     setLoading(true);
     try {
       const selectedRate = shippingRates.find((r) => r.id === selectedShipping);
@@ -123,14 +130,32 @@ export default function Checkout() {
         shippingCost: parseFloat(selectedRate?.rate || '0'),
       });
 
-      dispatch(clearCart());
-      toast.success('Order placed successfully!');
-      navigate(`/orders/${data.data.order.id}`);
+      const newOrderId = data.data.order.id;
+      setOrderId(newOrderId);
+
+      // Create PaymentIntent
+      const paymentRes = await api.post('/payment/create-payment-intent', {
+        orderId: newOrderId,
+      });
+
+      setClientSecret(paymentRes.data.data.clientSecret);
+      setStep(3);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to place order');
+      toast.error(error.response?.data?.message || 'Failed to create order');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePaymentSuccess = async () => {
+    setPaymentSuccess(true);
+    dispatch(clearCart());
+    toast.success('Order placed and paid successfully!');
+    navigate(`/orders/${orderId}`);
+  };
+
+  const handlePaymentError = (error: string) => {
+    toast.error(error);
   };
 
   const handleAddressFormSave = (address: Address | null) => {
@@ -165,8 +190,8 @@ export default function Checkout() {
         <div className="flex items-center justify-center mb-8">
           {[
             { num: 1, label: 'Shipping', icon: Truck },
-            { num: 2, label: 'Payment', icon: CreditCard },
-            { num: 3, label: 'Confirm', icon: Check },
+            { num: 2, label: 'Shipping Method', icon: Truck },
+            { num: 3, label: 'Payment', icon: CreditCard },
           ].map(({ num, label, icon: Icon }) => (
             <div key={num} className="flex items-center">
               <div
@@ -381,70 +406,51 @@ export default function Checkout() {
                     Back
                   </button>
                   <button
-                    onClick={() => setStep(3)}
-                    disabled={!selectedShipping}
+                    onClick={handleCreateOrder}
+                    disabled={!selectedShipping || loading}
                     className="flex-1 py-3 bg-gold-500 text-dark-300 font-bold rounded-lg hover:bg-gold-600 transition-colors disabled:opacity-50"
                   >
-                    Review Order
+                    {loading ? 'Creating Order...' : 'Proceed to Payment'}
                   </button>
                 </div>
               </div>
             )}
 
-            {step === 3 && (
+            {step === 3 && clientSecret && (
               <div className="space-y-6">
                 <div className="bg-dark-200 rounded-lg p-6">
-                  <h2 className="text-xl font-bold mb-4">Order Review</h2>
+                  <h2 className="text-xl font-bold mb-4">Payment</h2>
+                  <p className="text-gray-400 mb-6">
+                    Enter your card details to complete the purchase.
+                  </p>
 
-                  {/* Items */}
-                  <div className="space-y-3 mb-6">
+                  {/* Order Items Summary */}
+                  <div className="space-y-2 mb-6 p-4 bg-dark-300 rounded-lg">
                     {items.map((item) => (
-                      <div key={item.id} className="flex gap-3">
-                        <img
-                          src={item.product.images[0]?.url}
-                          alt={item.product.name}
-                          className="w-16 h-16 rounded object-cover"
-                        />
-                        <div className="flex-1">
-                          <p className="font-medium">{item.product.name}</p>
-                          <p className="text-sm text-gray-400">
-                            Qty: {item.quantity}
-                            {item.variant && ` • ${item.variant.size}`}
-                          </p>
-                        </div>
-                        <span className="font-bold">
-                          ${(item.price * item.quantity).toFixed(2)}
+                      <div key={item.id} className="flex justify-between text-sm">
+                        <span className="text-gray-300">
+                          {item.product.name} x{item.quantity}
                         </span>
+                        <span>${(item.price * item.quantity).toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
 
-                  {/* Address */}
-                  <div className="border-t border-dark-100 pt-4 mb-4">
-                    <p className="text-sm text-gray-400 mb-1">Ship to:</p>
-                    <p>{shippingAddress.street}</p>
-                    <p>
-                      {shippingAddress.city}, {shippingAddress.state}{' '}
-                      {shippingAddress.postalCode}
-                    </p>
-                  </div>
+                  {/* Stripe Payment Form */}
+                  <StripeProvider clientSecret={clientSecret}>
+                    <PaymentForm
+                      onSuccess={handlePaymentSuccess}
+                      onError={handlePaymentError}
+                    />
+                  </StripeProvider>
                 </div>
 
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => setStep(2)}
-                    className="flex-1 py-3 border border-dark-100 rounded-lg hover:bg-dark-200 transition-colors"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={handlePayment}
-                    disabled={loading}
-                    className="flex-1 py-3 bg-gold-500 text-dark-300 font-bold rounded-lg hover:bg-gold-600 transition-colors disabled:opacity-50"
-                  >
-                    {loading ? 'Processing...' : 'Place Order'}
-                  </button>
-                </div>
+                <button
+                  onClick={() => setStep(2)}
+                  className="w-full py-3 border border-dark-100 rounded-lg hover:bg-dark-200 transition-colors"
+                >
+                  Back to Shipping
+                </button>
               </div>
             )}
           </div>
@@ -471,6 +477,18 @@ export default function Checkout() {
                   <span className="text-gold-500">${orderTotal.toFixed(2)}</span>
                 </div>
               </div>
+
+              {/* Shipping Address Preview */}
+              {step >= 2 && (
+                <div className="mt-6 pt-4 border-t border-dark-100">
+                  <p className="text-xs text-gray-400 mb-1">Ship to:</p>
+                  <p className="text-sm">{shippingAddress.street}</p>
+                  <p className="text-sm text-gray-400">
+                    {shippingAddress.city}, {shippingAddress.state}{' '}
+                    {shippingAddress.postalCode}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
