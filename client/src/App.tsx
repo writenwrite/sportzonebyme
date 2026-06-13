@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { useAppDispatch } from './hooks/useAppDispatch';
 import { getMe } from './features/authSlice';
 import { fetchCart } from './features/cartSlice';
+import { fetchWishlist } from './features/wishlistSlice';
 
 import Layout from './components/Layout';
 import Home from './pages/Home';
@@ -15,6 +16,10 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
+import Wishlist from './pages/Wishlist';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminProducts from './pages/admin/AdminProducts';
+import AdminOrders from './pages/admin/AdminOrders';
 import AIChat from './ai/AIChat';
 
 function App() {
@@ -25,6 +30,7 @@ function App() {
     if (token) {
       dispatch(getMe());
       dispatch(fetchCart());
+      dispatch(fetchWishlist());
     }
   }, [dispatch]);
 
@@ -42,6 +48,10 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="orders" element={<Orders />} />
           <Route path="orders/:id" element={<OrderDetail />} />
+          <Route path="wishlist" element={<Wishlist />} />
+          <Route path="admin" element={<AdminDashboard />} />
+          <Route path="admin/products" element={<AdminProducts />} />
+          <Route path="admin/orders" element={<AdminOrders />} />
         </Route>
       </Routes>
       <AIChat />

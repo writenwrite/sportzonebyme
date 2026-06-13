@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Package, Truck, Check } from 'lucide-react';
+import { ArrowLeft, Package, Truck, Check, XCircle } from 'lucide-react';
 import api from '../services/api';
+import toast from 'react-hot-toast';
 
 interface OrderDetail {
   id: string;
@@ -65,6 +66,19 @@ export default function OrderDetail() {
 
   const currentStep = statusSteps.indexOf(order.status);
 
+  const handleCancel = async () => {
+    if (!confirm('Are you sure you want to cancel this order?')) return;
+    try {
+      await api.put(`/orders/${order.id}/cancel`);
+      setOrder({ ...order, status: 'CANCELLED' });
+      toast.success('Order cancelled');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to cancel order');
+    }
+  };
+
+  const canCancel = ['PENDING', 'PAID'].includes(order.status);
+
   return (
     <div className="pt-20 pb-12">
       <div className="max-w-4xl mx-auto px-4">
@@ -83,9 +97,20 @@ export default function OrderDetail() {
               Placed on {new Date(order.createdAt).toLocaleDateString()}
             </p>
           </div>
-          <span className="px-4 py-2 bg-gold-500/20 text-gold-500 rounded-full font-medium">
-            {order.status}
-          </span>
+          <div className="flex items-center gap-3">
+            {canCancel && (
+              <button
+                onClick={handleCancel}
+                className="flex items-center gap-2 px-4 py-2 text-red-500 border border-red-500 rounded-lg hover:bg-red-500/10 transition-colors"
+              >
+                <XCircle size={16} />
+                Cancel Order
+              </button>
+            )}
+            <span className="px-4 py-2 bg-gold-500/20 text-gold-500 rounded-full font-medium">
+              {order.status}
+            </span>
+          </div>
         </div>
 
         {/* Progress */}

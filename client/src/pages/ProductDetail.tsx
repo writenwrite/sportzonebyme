@@ -5,6 +5,7 @@ import { useAppDispatch } from '../hooks/useAppDispatch';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { fetchProductBySlug } from '../features/productSlice';
 import { addToCart } from '../features/cartSlice';
+import { toggleWishlist } from '../features/wishlistSlice';
 import toast from 'react-hot-toast';
 
 export default function ProductDetail() {
@@ -18,6 +19,9 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
+
+  const { productIds } = useAppSelector((state) => state.wishlist);
+  const { user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     if (slug) {
@@ -82,6 +86,17 @@ export default function ProductDetail() {
   const discount = product.comparePrice
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
     : 0;
+
+  const isWishlisted = productIds.includes(product.id);
+
+  const handleToggleWishlist = async () => {
+    if (!user) {
+      toast.error('Please login to add to wishlist');
+      return;
+    }
+    await dispatch(toggleWishlist(product.id));
+    toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
+  };
 
   return (
     <div className="pt-20 pb-12">
@@ -247,8 +262,15 @@ export default function ProductDetail() {
                 <ShoppingBag size={20} />
                 Add to Cart
               </button>
-              <button className="p-4 border-2 border-dark-100 rounded-lg hover:border-gold-500 hover:text-gold-500 transition-colors">
-                <Heart size={20} />
+              <button
+                onClick={handleToggleWishlist}
+                className={`p-4 border-2 rounded-lg transition-colors ${
+                  isWishlisted
+                    ? 'border-red-500 text-red-500 bg-red-500/10'
+                    : 'border-dark-100 hover:border-gold-500 hover:text-gold-500'
+                }`}
+              >
+                <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
               </button>
             </div>
 

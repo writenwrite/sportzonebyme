@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { useAppDispatch } from '../hooks/useAppDispatch';
+import { useAppSelector } from '../hooks/useAppSelector';
 import { addToCart } from '../features/cartSlice';
+import { toggleWishlist } from '../features/wishlistSlice';
+import { useAppSelector as useAuthSelector } from '../hooks/useAppSelector';
 import toast from 'react-hot-toast';
 
 interface ProductCardProps {
@@ -20,6 +23,9 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const dispatch = useAppDispatch();
+  const { productIds } = useAppSelector((state) => state.wishlist);
+  const { user } = useAuthSelector((state) => state.auth);
+  const isWishlisted = productIds.includes(product.id);
   const discount = product.comparePrice
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
     : 0;
@@ -28,6 +34,16 @@ export default function ProductCard({ product }: ProductCardProps) {
     e.preventDefault();
     await dispatch(addToCart({ productId: product.id }));
     toast.success('Added to cart');
+  };
+
+  const handleToggleWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!user) {
+      toast.error('Please login to add to wishlist');
+      return;
+    }
+    await dispatch(toggleWishlist(product.id));
+    toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
   };
 
   return (
@@ -54,12 +70,12 @@ export default function ProductCard({ product }: ProductCardProps) {
           <ShoppingBag size={16} />
         </button>
         <button
-          onClick={(e) => {
-            e.preventDefault();
-          }}
-          className="absolute top-2 right-2 p-2 text-gray-400 hover:text-red-500 transition-colors"
+          onClick={handleToggleWishlist}
+          className={`absolute top-2 right-2 p-2 transition-colors ${
+            isWishlisted ? 'text-red-500' : 'text-gray-400 hover:text-red-500'
+          }`}
         >
-          <Heart size={16} />
+          <Heart size={16} fill={isWishlisted ? 'currentColor' : 'none'} />
         </button>
       </div>
 

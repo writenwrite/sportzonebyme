@@ -5,6 +5,7 @@ import {
   getOrderById,
   updateOrderStatus,
   cancelOrder,
+  getAllOrders,
 } from '../controllers/order.controller';
 import { authenticate, authorize } from '../middleware/auth';
 
@@ -14,6 +15,7 @@ router.use(authenticate);
 
 router.post('/', createOrder);
 router.get('/', getOrders);
+router.get('/admin/all', authorize('ADMIN'), getAllOrders);
 router.get('/:id', getOrderById);
 router.put('/:id/cancel', cancelOrder);
 

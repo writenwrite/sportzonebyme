@@ -3,6 +3,11 @@ import { prisma } from '../index';
 import { AppError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
 import { generateOrderNumber } from '../utils/helpers';
+import {
+  sendOrderConfirmation,
+  sendShippingUpdate,
+  sendDeliveryConfirmation,
+} from '../services/whatsapp.service';
 
 export const createOrder = async (
   req: AuthRequest,
@@ -86,6 +91,24 @@ export const createOrder = async (
       where: { id: cart.id },
       data: { total: 0 },
     });
+
+    // Send WhatsApp notification
+    const userWithPhone = await prisma.user.findUnique({
+      where: { id: req.user?.id },
+      select: { phone: true },
+    });
+    if (userWithPhone?.phone) {
+      sendOrderConfirmation(
+        userWithPhone.phone,
+        order.orderNumber,
+        total,
+        order.items.map((item) => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+        }))
+      );
+    }
 
     res.status(201).json({ status: 'success', data: { order } });
   } catch (error) {
@@ -196,6 +219,27 @@ export const updateOrderStatus = async (
       },
     });
 
+    // Send WhatsApp notification for shipping updates
+    if (['SHIPPED', 'DELIVERED'].includes(status)) {
+      const orderWithUser = await prisma.order.findUnique({
+        where: { id },
+        include: { user: { select: { phone: true } } },
+      });
+      if (orderWithUser?.user.phone) {
+        if (status === 'DELIVERED') {
+          sendDeliveryConfirmation(orderWithUser.user.phone, orderWithUser.orderNumber);
+        } else {
+          sendShippingUpdate(
+            orderWithUser.user.phone,
+            orderWithUser.orderNumber,
+            status,
+            trackingNumber,
+            orderWithUser.shippingService || undefined
+          );
+        }
+      }
+    }
+
     res.json({ status: 'success', data: { order: updatedOrder } });
   } catch (error) {
     next(error);
@@ -248,6 +292,47 @@ export const cancelOrder = async (
     });
 
     res.json({ status: 'success', data: { order: updatedOrder } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllOrders = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { page = '1', limit = '10' } = req.query;
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+    const skip = (pageNum - 1) * limitNum;
+
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        include: {
+          items: true,
+          user: { select: { name: true, email: true } },
+        },
+        skip,
+        take: limitNum,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.order.count(),
+    ]);
+
+    res.json({
+      status: 'success',
+      data: {
+        orders,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          pages: Math.ceil(total / limitNum),
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }

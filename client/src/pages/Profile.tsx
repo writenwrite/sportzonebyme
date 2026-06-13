@@ -1,8 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MapPin, Plus, Edit2, Trash2 } from 'lucide-react';
 import { useAppSelector } from '../hooks/useAppSelector';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import AddressForm from '../components/AddressForm';
+
+interface Address {
+  id: string;
+  label: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+  isDefault: boolean;
+}
 
 export default function Profile() {
   const { user } = useAppSelector((state) => state.auth);
@@ -10,6 +24,9 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -18,7 +35,17 @@ export default function Profile() {
     }
     setName(user.name);
     setPhone(user.phone || '');
+    fetchAddresses();
   }, [user, navigate]);
+
+  const fetchAddresses = async () => {
+    try {
+      const { data } = await api.get('/users/addresses');
+      setAddresses(data.data.addresses);
+    } catch (error) {
+      console.error('Failed to fetch addresses');
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -28,6 +55,22 @@ export default function Profile() {
     } catch (error) {
       toast.error('Failed to update profile');
     }
+  };
+
+  const handleAddressSave = (address: Address | null) => {
+    if (address === null) {
+      // Address was deleted
+      setAddresses((prev) => prev.filter((a) => a.id !== editingAddress?.id));
+    } else {
+      const exists = addresses.find((a) => a.id === address.id);
+      if (exists) {
+        setAddresses((prev) => prev.map((a) => (a.id === address.id ? address : a)));
+      } else {
+        setAddresses((prev) => [...prev, address]);
+      }
+    }
+    setShowAddressForm(false);
+    setEditingAddress(null);
   };
 
   if (!user) return null;
@@ -109,13 +152,79 @@ export default function Profile() {
         </div>
 
         <div className="mt-8">
-          <h3 className="text-xl font-bold mb-4">Addresses</h3>
-          <p className="text-gray-400">No addresses saved yet.</p>
-          <button className="mt-4 px-4 py-2 text-gold-500 border border-gold-500 rounded-lg hover:bg-gold-500/10 transition-colors">
-            Add Address
-          </button>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold">Addresses</h3>
+            <button
+              onClick={() => {
+                setEditingAddress(null);
+                setShowAddressForm(true);
+              }}
+              className="flex items-center gap-2 px-4 py-2 text-gold-500 border border-gold-500 rounded-lg hover:bg-gold-500/10 transition-colors"
+            >
+              <Plus size={16} />
+              Add Address
+            </button>
+          </div>
+
+          {addresses.length === 0 ? (
+            <div className="bg-dark-200 rounded-lg p-8 text-center">
+              <MapPin className="w-12 h-12 text-gray-500 mx-auto mb-3" />
+              <p className="text-gray-400">No addresses saved yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {addresses.map((address) => (
+                <div
+                  key={address.id}
+                  className={`bg-dark-200 rounded-lg p-4 flex items-start justify-between ${
+                    address.isDefault ? 'ring-2 ring-gold-500' : ''
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium">{address.label}</span>
+                      {address.isDefault && (
+                        <span className="px-2 py-0.5 bg-gold-500/20 text-gold-500 text-xs rounded">
+                          Default
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-gray-300">{address.street}</p>
+                    <p className="text-gray-400 text-sm">
+                      {address.city}, {address.state} {address.postalCode}
+                    </p>
+                    {address.phone && (
+                      <p className="text-gray-400 text-sm">{address.phone}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setEditingAddress(address);
+                        setShowAddressForm(true);
+                      }}
+                      className="p-2 hover:text-gold-500 transition-colors"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
+
+      {showAddressForm && (
+        <AddressForm
+          address={editingAddress}
+          onClose={() => {
+            setShowAddressForm(false);
+            setEditingAddress(null);
+          }}
+          onSave={handleAddressSave}
+        />
+      )}
     </div>
   );
 }

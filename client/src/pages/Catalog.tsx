@@ -20,6 +20,7 @@ export default function Catalog() {
     maxPrice: searchParams.get('maxPrice') || '',
     search: searchParams.get('search') || '',
     sort: searchParams.get('sort') || 'createdAt',
+    page: searchParams.get('page') || '1',
   });
 
   const [showFilters, setShowFilters] = useState(false);
@@ -31,18 +32,20 @@ export default function Catalog() {
   useEffect(() => {
     const params: Record<string, string> = {};
     Object.entries(filters).forEach(([key, value]) => {
-      if (value) params[key] = value;
+      if (value && key !== 'page') params[key] = value;
     });
+    params.page = filters.page;
     dispatch(fetchProducts(params));
-  }, [dispatch, filters]);
+  }, [dispatch, filters.category, filters.brand, filters.minPrice, filters.maxPrice, filters.search, filters.sort, filters.page]);
 
   const handleFilterChange = (key: string, value: string) => {
-    const newFilters = { ...filters, [key]: value };
+    const newFilters = { ...filters, [key]: value, page: '1' };
     setFilters(newFilters);
     const params = new URLSearchParams();
     Object.entries(newFilters).forEach(([k, v]) => {
-      if (v) params.set(k, v);
+      if (v && k !== 'page') params.set(k, v);
     });
+    if (newFilters.page !== '1') params.set('page', newFilters.page);
     setSearchParams(params);
   };
 
@@ -54,6 +57,7 @@ export default function Catalog() {
       maxPrice: '',
       search: '',
       sort: 'createdAt',
+      page: '1',
     });
     setSearchParams({});
   };
@@ -151,6 +155,18 @@ export default function Catalog() {
                 </div>
               </div>
 
+              {/* Brand */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium mb-3">Brand</h4>
+                <input
+                  type="text"
+                  placeholder="Filter by brand..."
+                  value={filters.brand}
+                  onChange={(e) => handleFilterChange('brand', e.target.value)}
+                  className="w-full px-3 py-2 bg-dark-300 border border-dark-100 rounded text-sm focus:outline-none focus:border-gold-500"
+                />
+              </div>
+
               {/* Active Filters */}
               {Object.values(filters).some((v) => v) && (
                 <div>
@@ -160,6 +176,14 @@ export default function Catalog() {
                       <span className="px-3 py-1 bg-gold-500/20 text-gold-500 text-xs rounded-full flex items-center gap-1">
                         {filters.category}
                         <button onClick={() => handleFilterChange('category', '')}>
+                          <X size={12} />
+                        </button>
+                      </span>
+                    )}
+                    {filters.brand && (
+                      <span className="px-3 py-1 bg-gold-500/20 text-gold-500 text-xs rounded-full flex items-center gap-1">
+                        {filters.brand}
+                        <button onClick={() => handleFilterChange('brand', '')}>
                           <X size={12} />
                         </button>
                       </span>
@@ -226,6 +250,7 @@ export default function Catalog() {
                   <button
                     key={i}
                     onClick={() => {
+                      setFilters((prev) => ({ ...prev, page: String(i + 1) }));
                       const params = new URLSearchParams(searchParams);
                       params.set('page', String(i + 1));
                       setSearchParams(params);

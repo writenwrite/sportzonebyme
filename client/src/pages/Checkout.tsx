@@ -1,22 +1,39 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CreditCard, Truck, Check } from 'lucide-react';
+import { CreditCard, Truck, Check, MapPin, Plus } from 'lucide-react';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { fetchCart, clearCart } from '../features/cartSlice';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import AddressForm from '../components/AddressForm';
+
+interface Address {
+  id: string;
+  label: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+  isDefault: boolean;
+}
 
 export default function Checkout() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { items, total } = useAppSelector((state) => state.cart);
+  const { items } = useAppSelector((state) => state.cart);
   const { user } = useAppSelector((state) => state.auth);
 
   const [step, setStep] = useState(1);
   const [shippingRates, setShippingRates] = useState<any[]>([]);
   const [selectedShipping, setSelectedShipping] = useState('');
   const [loading, setLoading] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState('');
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [useNewAddress, setUseNewAddress] = useState(false);
 
   const [shippingAddress, setShippingAddress] = useState({
     label: 'Home',
@@ -33,6 +50,46 @@ export default function Checkout() {
       navigate('/cart');
     }
   }, [items, navigate]);
+
+  useEffect(() => {
+    fetchSavedAddresses();
+  }, []);
+
+  const fetchSavedAddresses = async () => {
+    try {
+      const { data } = await api.get('/users/addresses');
+      setSavedAddresses(data.data.addresses);
+      const defaultAddr = data.data.addresses.find((a: Address) => a.isDefault);
+      if (defaultAddr) {
+        setSelectedAddressId(defaultAddr.id);
+        setShippingAddress({
+          label: defaultAddr.label,
+          street: defaultAddr.street,
+          city: defaultAddr.city,
+          state: defaultAddr.state,
+          postalCode: defaultAddr.postalCode,
+          country: defaultAddr.country,
+          phone: defaultAddr.phone,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch addresses');
+    }
+  };
+
+  const handleSelectAddress = (addr: Address) => {
+    setSelectedAddressId(addr.id);
+    setUseNewAddress(false);
+    setShippingAddress({
+      label: addr.label,
+      street: addr.street,
+      city: addr.city,
+      state: addr.state,
+      postalCode: addr.postalCode,
+      country: addr.country,
+      phone: addr.phone,
+    });
+  };
 
   const fetchRates = async () => {
     try {
@@ -73,6 +130,24 @@ export default function Checkout() {
       toast.error(error.response?.data?.message || 'Failed to place order');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddressFormSave = (address: Address | null) => {
+    setShowAddressForm(false);
+    if (address) {
+      setSavedAddresses((prev) => [...prev, address]);
+      setSelectedAddressId(address.id);
+      setUseNewAddress(false);
+      setShippingAddress({
+        label: address.label,
+        street: address.street,
+        city: address.city,
+        state: address.state,
+        postalCode: address.postalCode,
+        country: address.country,
+        phone: address.phone,
+      });
     }
   };
 
@@ -126,67 +201,130 @@ export default function Checkout() {
               <form onSubmit={handleAddressSubmit} className="space-y-6">
                 <div className="bg-dark-200 rounded-lg p-6">
                   <h2 className="text-xl font-bold mb-4">Shipping Address</h2>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="sm:col-span-2">
-                      <label className="block text-sm mb-2">Street Address</label>
-                      <input
-                        type="text"
-                        required
-                        value={shippingAddress.street}
-                        onChange={(e) =>
-                          setShippingAddress({ ...shippingAddress, street: e.target.value })
-                        }
-                        className="w-full px-4 py-2 bg-dark-300 border border-dark-100 rounded-lg focus:outline-none focus:border-gold-500"
-                      />
+
+                  {/* Saved Addresses */}
+                  {savedAddresses.length > 0 && (
+                    <div className="mb-6">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-sm font-medium text-gray-300">Saved Addresses</p>
+                        <button
+                          type="button"
+                          onClick={() => setShowAddressForm(true)}
+                          className="text-sm text-gold-500 hover:text-gold-600 flex items-center gap-1"
+                        >
+                          <Plus size={14} /> Add New
+                        </button>
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        {savedAddresses.map((addr) => (
+                          <label
+                            key={addr.id}
+                            type="button"
+                            onClick={() => handleSelectAddress(addr)}
+                            className={`p-3 rounded-lg border cursor-pointer transition-all text-left ${
+                              selectedAddressId === addr.id && !useNewAddress
+                                ? 'border-gold-500 bg-gold-500/10'
+                                : 'border-dark-100 hover:border-dark-100'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 mb-1">
+                              <MapPin size={14} className="text-gold-500" />
+                              <span className="font-medium text-sm">{addr.label}</span>
+                              {addr.isDefault && (
+                                <span className="px-1.5 py-0.5 bg-gold-500/20 text-gold-500 text-xs rounded">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-400 truncate">{addr.street}</p>
+                            <p className="text-xs text-gray-400">
+                              {addr.city}, {addr.state} {addr.postalCode}
+                            </p>
+                          </label>
+                        ))}
+                        <label
+                          type="button"
+                          onClick={() => {
+                            setUseNewAddress(true);
+                            setSelectedAddressId('');
+                          }}
+                          className={`p-3 rounded-lg border cursor-pointer transition-all text-center ${
+                            useNewAddress
+                              ? 'border-gold-500 bg-gold-500/10'
+                              : 'border-dark-100 hover:border-dark-100 border-dashed'
+                          }`}
+                        >
+                          <Plus size={20} className="mx-auto text-gray-400 mb-1" />
+                          <p className="text-sm text-gray-400">Use new address</p>
+                        </label>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm mb-2">City</label>
-                      <input
-                        type="text"
-                        required
-                        value={shippingAddress.city}
-                        onChange={(e) =>
-                          setShippingAddress({ ...shippingAddress, city: e.target.value })
-                        }
-                        className="w-full px-4 py-2 bg-dark-300 border border-dark-100 rounded-lg focus:outline-none focus:border-gold-500"
-                      />
+                  )}
+
+                  {/* Address Form */}
+                  {(useNewAddress || savedAddresses.length === 0) && (
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="sm:col-span-2">
+                        <label className="block text-sm mb-2">Street Address</label>
+                        <input
+                          type="text"
+                          required
+                          value={shippingAddress.street}
+                          onChange={(e) =>
+                            setShippingAddress({ ...shippingAddress, street: e.target.value })
+                          }
+                          className="w-full px-4 py-2 bg-dark-300 border border-dark-100 rounded-lg focus:outline-none focus:border-gold-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm mb-2">City</label>
+                        <input
+                          type="text"
+                          required
+                          value={shippingAddress.city}
+                          onChange={(e) =>
+                            setShippingAddress({ ...shippingAddress, city: e.target.value })
+                          }
+                          className="w-full px-4 py-2 bg-dark-300 border border-dark-100 rounded-lg focus:outline-none focus:border-gold-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm mb-2">State</label>
+                        <input
+                          type="text"
+                          required
+                          value={shippingAddress.state}
+                          onChange={(e) =>
+                            setShippingAddress({ ...shippingAddress, state: e.target.value })
+                          }
+                          className="w-full px-4 py-2 bg-dark-300 border border-dark-100 rounded-lg focus:outline-none focus:border-gold-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm mb-2">Postal Code</label>
+                        <input
+                          type="text"
+                          required
+                          value={shippingAddress.postalCode}
+                          onChange={(e) =>
+                            setShippingAddress({ ...shippingAddress, postalCode: e.target.value })
+                          }
+                          className="w-full px-4 py-2 bg-dark-300 border border-dark-100 rounded-lg focus:outline-none focus:border-gold-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm mb-2">Phone</label>
+                        <input
+                          type="tel"
+                          value={shippingAddress.phone}
+                          onChange={(e) =>
+                            setShippingAddress({ ...shippingAddress, phone: e.target.value })
+                          }
+                          className="w-full px-4 py-2 bg-dark-300 border border-dark-100 rounded-lg focus:outline-none focus:border-gold-500"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm mb-2">State</label>
-                      <input
-                        type="text"
-                        required
-                        value={shippingAddress.state}
-                        onChange={(e) =>
-                          setShippingAddress({ ...shippingAddress, state: e.target.value })
-                        }
-                        className="w-full px-4 py-2 bg-dark-300 border border-dark-100 rounded-lg focus:outline-none focus:border-gold-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm mb-2">Postal Code</label>
-                      <input
-                        type="text"
-                        required
-                        value={shippingAddress.postalCode}
-                        onChange={(e) =>
-                          setShippingAddress({ ...shippingAddress, postalCode: e.target.value })
-                        }
-                        className="w-full px-4 py-2 bg-dark-300 border border-dark-100 rounded-lg focus:outline-none focus:border-gold-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm mb-2">Phone</label>
-                      <input
-                        type="tel"
-                        value={shippingAddress.phone}
-                        onChange={(e) =>
-                          setShippingAddress({ ...shippingAddress, phone: e.target.value })
-                        }
-                        className="w-full px-4 py-2 bg-dark-300 border border-dark-100 rounded-lg focus:outline-none focus:border-gold-500"
-                      />
-                    </div>
-                  </div>
+                  )}
                 </div>
                 <button
                   type="submit"
@@ -337,6 +475,13 @@ export default function Checkout() {
           </div>
         </div>
       </div>
+
+      {showAddressForm && (
+        <AddressForm
+          onClose={() => setShowAddressForm(false)}
+          onSave={handleAddressFormSave}
+        />
+      )}
     </div>
   );
 }
