@@ -1,0 +1,21 @@
+{
+  "name": "sportzone",
+  "version": "1.0.0",
+  "description": "SportZone - E-Commerce with AI Assistant",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "db:generate": "cd server && npx prisma generate",
+    "db:push": "cd server && npx prisma db push",
+    "db:seed": "cd server && npm run seed",
+    "db:migrate": "cd server && npx prisma migrate dev",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
