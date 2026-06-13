@@ -5,6 +5,7 @@ import { useAppSelector } from '../hooks/useAppSelector';
 import { addToCart } from '../features/cartSlice';
 import { toggleWishlist } from '../features/wishlistSlice';
 import { useAppSelector as useAuthSelector } from '../hooks/useAppSelector';
+import StarRating from './StarRating';
 import toast from 'react-hot-toast';
 
 interface ProductCardProps {
@@ -94,12 +95,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
         <div className="flex items-center gap-1 mt-2">
-          <div className="flex text-gold-500 text-xs">
-            {[...Array(5)].map((_, i) => (
-              <span key={i}>{i < Math.floor(product.rating) ? '★' : '☆'}</span>
-            ))}
-          </div>
-          <span className="text-xs text-gray-400">({product.reviewCount})</span>
+          <StarRating rating={product.rating} count={product.reviewCount} size={14} />
         </div>
       </div>
     </Link>

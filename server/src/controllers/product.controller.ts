@@ -46,9 +46,9 @@ export const getProducts = async (
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { tags: { has: search as string } },
+        { name: { contains: search } },
+        { description: { contains: search } },
+        { tags: { contains: search as string } },
       ];
     }
 
@@ -157,7 +157,7 @@ export const createProduct = async (
         sku,
         brand,
         categoryId,
-        tags,
+        tags: JSON.stringify(tags || []),
         stock,
         weight,
         images: {

@@ -19,6 +19,7 @@ import aiRoutes from './routes/ai.routes';
 import shippingRoutes from './routes/shipping.routes';
 import webhookRoutes from './routes/webhook.routes';
 import paymentRoutes from './routes/payment.routes';
+import reviewRoutes from './routes/review.routes';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
 
@@ -57,6 +58,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/shipping', shippingRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Stripe webhook needs raw body for signature verification
 app.use('/api/webhooks', express.raw({ type: 'application/json' }), webhookRoutes);

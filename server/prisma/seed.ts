@@ -74,7 +74,7 @@ async function main() {
       brand: 'SportZone',
       categoryId: categories[0].id,
       stock: 150,
-      tags: ['running', 'comfort', 'bestseller'],
+      tags: JSON.stringify(['running', 'comfort', 'bestseller']),
       images: [
         { url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800', alt: 'UltraBoost Pro', isPrimary: true },
       ],
@@ -95,7 +95,7 @@ async function main() {
       brand: 'SportZone',
       categoryId: categories[1].id,
       stock: 200,
-      tags: ['training', 'basics', 'breathable'],
+      tags: JSON.stringify(['training', 'basics', 'breathable']),
       images: [
         { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800', alt: 'AeroFit Training Tee', isPrimary: true },
       ],
@@ -116,7 +116,7 @@ async function main() {
       brand: 'SportZone',
       categoryId: categories[1].id,
       stock: 80,
-      tags: ['running', 'jacket', 'weatherproof'],
+      tags: JSON.stringify(['running', 'jacket', 'weatherproof']),
       images: [
         { url: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800', alt: 'ProRunner Jacket', isPrimary: true },
       ],
@@ -135,7 +135,7 @@ async function main() {
       brand: 'SportZone',
       categoryId: categories[2].id,
       stock: 100,
-      tags: ['backpack', 'accessories', 'daily'],
+      tags: JSON.stringify(['backpack', 'accessories', 'daily']),
       images: [
         { url: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800', alt: 'Sport Classic Backpack', isPrimary: true },
       ],
@@ -152,7 +152,7 @@ async function main() {
       brand: 'SportZone',
       categoryId: categories[3].id,
       stock: 120,
-      tags: ['running', 'shorts', 'lightweight'],
+      tags: JSON.stringify(['running', 'shorts', 'lightweight']),
       images: [
         { url: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=800', alt: 'SpeedElite Running Shorts', isPrimary: true },
       ],

@@ -6,6 +6,8 @@ import { useAppSelector } from '../hooks/useAppSelector';
 import { fetchProductBySlug } from '../features/productSlice';
 import { addToCart } from '../features/cartSlice';
 import { toggleWishlist } from '../features/wishlistSlice';
+import ReviewForm from '../components/ReviewForm';
+import ReviewList from '../components/ReviewList';
 import toast from 'react-hot-toast';
 
 export default function ProductDetail() {
@@ -96,6 +98,13 @@ export default function ProductDetail() {
     }
     await dispatch(toggleWishlist(product.id));
     toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
+  };
+
+  const handleReviewSuccess = () => {
+    toast.success('Review submitted!');
+    if (slug) {
+      dispatch(fetchProductBySlug(slug));
+    }
   };
 
   return (
@@ -288,6 +297,35 @@ export default function ProductDetail() {
                 <RotateCcw className="w-6 h-6 text-gold-500 mx-auto mb-2" />
                 <p className="text-xs text-gray-400">30 Day Returns</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Review Form */}
+            <div className="md:col-span-1">
+              {user ? (
+                <ReviewForm productId={product.id} onSuccess={handleReviewSuccess} />
+              ) : (
+                <div className="bg-dark-200 rounded-lg p-6 text-center">
+                  <p className="text-gray-400 mb-4">Login to write a review</p>
+                  <a
+                    href="/login"
+                    className="inline-block px-6 py-2 bg-gold-500 text-dark-300 rounded-lg font-bold hover:bg-gold-600"
+                  >
+                    Login
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Review List */}
+            <div className="md:col-span-2">
+              <ReviewList productId={product.id} />
             </div>
           </div>
         </div>
