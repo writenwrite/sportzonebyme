@@ -331,6 +331,7 @@ sportzone/
 
 | Document | Description |
 |----------|-------------|
+| [RESUME.md](./RESUME.md) | 📋 **Ringkasan proyek, teknologi, dan nilai tambah** |
 | [PROCESS.md](./PROCESS.md) | 📖 Panduan lengkap proses dari awal sampai selesai |
 | [DOCUMENTATION.md](./DOCUMENTATION.md) | Dokumentasi lengkap fitur & fungsi |
 | [FLOW.md](./FLOW.md) | Diagram alur pengguna & transaksi |
@@ -342,6 +343,7 @@ sportzone/
 
 | Document | Description |
 |----------|-------------|
+| [RESUME_EN.md](./RESUME_EN.md) | 📋 **Project resume, technologies, and value proposition** |
 | [PROCESS_EN.md](./PROCESS_EN.md) | 📖 Complete process guide from start to finish |
 | [DOCUMENTATION_EN.md](./DOCUMENTATION_EN.md) | Comprehensive feature & function documentation |
 | [FLOW_EN.md](./FLOW_EN.md) | User journey & transaction flow diagrams |
