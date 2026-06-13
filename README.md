@@ -323,6 +323,7 @@ sportzone/
 
 | Document | Description |
 |----------|-------------|
+| [PROCESS.md](./PROCESS.md) | 📖 **Panduan lengkap proses dari awal sampai selesai** |
 | [DOCUMENTATION.md](./DOCUMENTATION.md) | Comprehensive feature documentation |
 | [FLOW.md](./FLOW.md) | User journey & transaction flow diagrams |
 | [API.md](./API.md) | REST API reference with examples |
