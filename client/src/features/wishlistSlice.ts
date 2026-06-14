@@ -46,7 +46,7 @@ export const toggleWishlist = createAsyncThunk(
   async (productId: string, { rejectWithValue }) => {
     try {
       const { data } = await api.post(`/users/wishlist/${productId}`);
-      return { productId, message: data.message };
+      return { productId, wishlisted: data.data.wishlisted, message: data.message };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update wishlist');
     }
@@ -77,9 +77,8 @@ const wishlistSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(toggleWishlist.fulfilled, (state, action) => {
-        const { productId } = action.meta.arg;
-        const isAdding = action.payload.message === 'Added to wishlist';
-        if (isAdding) {
+        const { productId, wishlisted } = action.payload;
+        if (wishlisted) {
           state.productIds.push(productId);
         } else {
           state.productIds = state.productIds.filter((id) => id !== productId);

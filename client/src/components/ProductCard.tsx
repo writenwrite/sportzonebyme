@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingBag } from 'lucide-react';
+import { Heart, ShoppingBag, Eye } from 'lucide-react';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { addToCart } from '../features/cartSlice';
@@ -19,6 +19,7 @@ interface ProductCardProps {
     category: { name: string };
     rating: number;
     reviewCount: number;
+    stock?: number;
   };
 }
 
@@ -33,12 +34,14 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     await dispatch(addToCart({ productId: product.id }));
     toast.success('Added to cart');
   };
 
   const handleToggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!user) {
       toast.error('Please login to add to wishlist');
       return;
@@ -50,51 +53,77 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       to={`/catalog/${product.slug}`}
-      className="group block bg-dark-200 rounded-lg overflow-hidden hover:ring-2 hover:ring-gold-500 transition-all"
+      className="group block bg-dark-200 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-gold-500/10 transition-all duration-300"
     >
       {/* Image */}
-      <div className="relative aspect-square overflow-hidden">
+      <div className="relative aspect-square overflow-hidden bg-dark-300">
         <img
           src={product.images[0]?.url}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
+        
+        {/* Overlay on hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        {/* Discount badge */}
         {discount > 0 && (
-          <span className="absolute top-2 left-2 bg-gold-500 text-dark-300 text-xs font-bold px-2 py-1 rounded">
+          <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
             -{discount}%
           </span>
         )}
-        <button
-          onClick={handleAddToCart}
-          className="absolute bottom-2 right-2 p-2 bg-gold-500 text-dark-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gold-600"
-        >
-          <ShoppingBag size={16} />
-        </button>
-        <button
-          onClick={handleToggleWishlist}
-          className={`absolute top-2 right-2 p-2 transition-colors ${
-            isWishlisted ? 'text-red-500' : 'text-gray-400 hover:text-red-500'
-          }`}
-        >
-          <Heart size={16} fill={isWishlisted ? 'currentColor' : 'none'} />
-        </button>
+        
+        {/* Stock badge */}
+        {product.stock !== undefined && product.stock <= 5 && product.stock > 0 && (
+          <span className="absolute top-3 right-3 bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+            Only {product.stock} left
+          </span>
+        )}
+        {product.stock === 0 && (
+          <span className="absolute top-3 right-3 bg-gray-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+            Out of Stock
+          </span>
+        )}
+        
+        {/* Action buttons */}
+        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
+          <button
+            onClick={handleAddToCart}
+            className="flex-1 mr-2 py-2.5 bg-gold-500 text-dark-300 text-sm font-bold rounded-lg hover:bg-gold-600 transition-colors flex items-center justify-center gap-2"
+          >
+            <ShoppingBag size={16} />
+            Add to Cart
+          </button>
+          <button
+            onClick={handleToggleWishlist}
+            className={`p-2.5 rounded-lg transition-colors ${
+              isWishlisted
+                ? 'bg-red-500 text-white'
+                : 'bg-dark-300/80 text-white hover:bg-red-500'
+            }`}
+          >
+            <Heart size={16} fill={isWishlisted ? 'currentColor' : 'none'} />
+          </button>
+        </div>
       </div>
 
       {/* Info */}
       <div className="p-4">
-        <p className="text-xs text-gray-400 mb-1">{product.category.name}</p>
-        <h3 className="font-medium text-white group-hover:text-gold-500 transition-colors mb-2">
+        <p className="text-xs text-gold-500 font-medium mb-1.5 uppercase tracking-wider">
+          {product.category.name}
+        </p>
+        <h3 className="font-semibold text-white group-hover:text-gold-500 transition-colors mb-2 line-clamp-2">
           {product.name}
         </h3>
-        <div className="flex items-center gap-2">
-          <span className="text-gold-500 font-bold">${product.price.toFixed(2)}</span>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-lg font-bold text-gold-500">${product.price.toFixed(2)}</span>
           {product.comparePrice && (
-            <span className="text-gray-500 text-sm line-through">
+            <span className="text-sm text-gray-500 line-through">
               ${product.comparePrice.toFixed(2)}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1 mt-2">
+        <div className="flex items-center gap-2">
           <StarRating rating={product.rating} count={product.reviewCount} size={14} />
         </div>
       </div>

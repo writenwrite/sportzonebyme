@@ -147,11 +147,12 @@ export const toggleWishlist = async (
 ) => {
   try {
     const { productId } = req.params;
+    const userId = req.user?.id!;
 
     const existing = await prisma.wishlist.findUnique({
       where: {
         userId_productId: {
-          userId: req.user?.id!,
+          userId,
           productId,
         },
       },
@@ -161,15 +162,15 @@ export const toggleWishlist = async (
       await prisma.wishlist.delete({
         where: { id: existing.id },
       });
-      res.json({ status: 'success', message: 'Removed from wishlist' });
+      res.json({ status: 'success', message: 'Removed from wishlist', data: { wishlisted: false } });
     } else {
       await prisma.wishlist.create({
         data: {
-          userId: req.user?.id!,
+          userId,
           productId,
         },
       });
-      res.json({ status: 'success', message: 'Added to wishlist' });
+      res.json({ status: 'success', message: 'Added to wishlist', data: { wishlisted: true } });
     }
   } catch (error) {
     next(error);

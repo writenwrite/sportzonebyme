@@ -12,14 +12,12 @@ interface User {
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: AuthState = {
   user: null,
-  token: localStorage.getItem('token'),
   loading: false,
   error: null,
 };
@@ -29,7 +27,6 @@ export const login = createAsyncThunk(
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const { data } = await api.post('/auth/login', credentials);
-      localStorage.setItem('token', data.data.token);
       return data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Login failed');
@@ -42,7 +39,6 @@ export const register = createAsyncThunk(
   async (userData: { email: string; password: string; name: string; phone?: string }, { rejectWithValue }) => {
     try {
       const { data } = await api.post('/auth/register', userData);
-      localStorage.setItem('token', data.data.token);
       return data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Registration failed');
@@ -65,8 +61,6 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.user = null;
-      state.token = null;
-      localStorage.removeItem('token');
     },
     clearError: (state) => {
       state.error = null;
@@ -81,7 +75,6 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -94,7 +87,6 @@ const authSlice = createSlice({
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;

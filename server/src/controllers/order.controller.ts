@@ -41,58 +41,76 @@ export const createOrder = async (
     const tax = subtotal * 0.1;
     const total = subtotal + (shippingCost || 0) + tax;
 
-    const order = await prisma.order.create({
-      data: {
-        orderNumber: generateOrderNumber(),
-        userId: req.user?.id!,
-        items: {
-          create: cart.items.map((item) => ({
-            productId: item.productId,
-            variantId: item.variantId,
-            name: item.product.name,
-            price: item.price,
-            quantity: item.quantity,
-            image: item.product.images[0]?.url,
-          })),
+    const order = await prisma.$transaction(async (tx) => {
+      const newOrder = await tx.order.create({
+        data: {
+          orderNumber: generateOrderNumber(),
+          userId: req.user?.id!,
+          items: {
+            create: cart.items.map((item) => ({
+              productId: item.productId,
+              variantId: item.variantId,
+              name: item.product.name,
+              price: item.price,
+              quantity: item.quantity,
+              image: item.product.images[0]?.url,
+            })),
+          },
+          shippingAddress: JSON.stringify(shippingAddress),
+          billingAddress: billingAddress ? JSON.stringify(billingAddress) : null,
+          subtotal,
+          shippingCost: shippingCost || 0,
+          tax,
+          total,
+          notes,
+          shippingService,
         },
-        shippingAddress: JSON.stringify(shippingAddress),
-        billingAddress: billingAddress ? JSON.stringify(billingAddress) : null,
-        subtotal,
-        shippingCost: shippingCost || 0,
-        tax,
-        total,
-        notes,
-        shippingService,
-      },
-      include: {
-        items: true,
-        user: { select: { name: true, email: true } },
-      },
-    });
+        include: {
+          items: true,
+          user: { select: { name: true, email: true } },
+        },
+      });
 
-    // Update stock
-    for (const item of cart.items) {
-      if (item.variantId) {
-        await prisma.productVariant.update({
-          where: { id: item.variantId },
-          data: { stock: { decrement: item.quantity } },
-        });
-      } else {
-        await prisma.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } },
-        });
+      // Update stock atomically
+      for (const item of cart.items) {
+        if (item.variantId) {
+          const variant = await tx.productVariant.findUnique({
+            where: { id: item.variantId },
+            select: { stock: true },
+          });
+          if (variant && variant.stock < item.quantity) {
+            throw new AppError(`Insufficient stock for ${item.product.name}`, 400);
+          }
+          await tx.productVariant.update({
+            where: { id: item.variantId },
+            data: { stock: { decrement: item.quantity } },
+          });
+        } else {
+          const product = await tx.product.findUnique({
+            where: { id: item.productId },
+            select: { stock: true },
+          });
+          if (product && product.stock < item.quantity) {
+            throw new AppError(`Insufficient stock for ${item.product.name}`, 400);
+          }
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { decrement: item.quantity } },
+          });
+        }
       }
-    }
 
-    // Clear cart
-    await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
-    await prisma.cart.update({
-      where: { id: cart.id },
-      data: { total: 0 },
+      // Clear cart
+      await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
+      await tx.cart.update({
+        where: { id: cart.id },
+        data: { total: 0 },
+      });
+
+      return newOrder;
     });
 
-    // Send WhatsApp notification
+    // Send WhatsApp notification (outside transaction)
     const userWithPhone = await prisma.user.findUnique({
       where: { id: req.user?.id },
       select: { phone: true },
@@ -271,24 +289,26 @@ export const cancelOrder = async (
       throw new AppError('Order cannot be cancelled', 400);
     }
 
-    // Restore stock
-    for (const item of order.items) {
-      if (item.variantId) {
-        await prisma.productVariant.update({
-          where: { id: item.variantId },
-          data: { stock: { increment: item.quantity } },
-        });
-      } else {
-        await prisma.product.update({
-          where: { id: item.productId },
-          data: { stock: { increment: item.quantity } },
-        });
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      // Restore stock atomically
+      for (const item of order.items) {
+        if (item.variantId) {
+          await tx.productVariant.update({
+            where: { id: item.variantId },
+            data: { stock: { increment: item.quantity } },
+          });
+        } else {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity } },
+          });
+        }
       }
-    }
 
-    const updatedOrder = await prisma.order.update({
-      where: { id },
-      data: { status: 'CANCELLED' },
+      return tx.order.update({
+        where: { id },
+        data: { status: 'CANCELLED' },
+      });
     });
 
     res.json({ status: 'success', data: { order: updatedOrder } });

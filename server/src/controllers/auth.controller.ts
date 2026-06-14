@@ -5,6 +5,12 @@ import { prisma } from '../index';
 import { AppError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
 
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+
 export const register = async (
   req: Request,
   res: Response,
@@ -40,8 +46,8 @@ export const register = async (
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || 'default-secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
     );
 
     res.cookie('token', token, {
@@ -53,7 +59,7 @@ export const register = async (
 
     res.status(201).json({
       status: 'success',
-      data: { user, token },
+      data: { user },
     });
   } catch (error) {
     next(error);
@@ -78,8 +84,8 @@ export const login = async (
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || 'default-secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
     );
 
     res.cookie('token', token, {
@@ -98,7 +104,6 @@ export const login = async (
           name: user.name,
           role: user.role,
         },
-        token,
       },
     });
   } catch (error) {

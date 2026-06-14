@@ -15,7 +15,7 @@ export const getReviewsByProduct = async (
     const limitNum = parseInt(limit as string);
     const skip = (pageNum - 1) * limitNum;
 
-    const [reviews, total, stats] = await Promise.all([
+    const [reviews, total, stats, distribution] = await Promise.all([
       prisma.review.findMany({
         where: { productId },
         include: {
@@ -31,15 +31,13 @@ export const getReviewsByProduct = async (
         _avg: { rating: true },
         _count: { rating: true },
       }),
+      prisma.review.groupBy({
+        by: ['rating'],
+        where: { productId },
+        _count: { rating: true },
+        orderBy: { rating: 'desc' },
+      }),
     ]);
-
-    // Rating distribution
-    const distribution = await prisma.review.groupBy({
-      by: ['rating'],
-      where: { productId },
-      _count: { rating: true },
-      orderBy: { rating: 'desc' },
-    });
 
     const ratingDistribution = [5, 4, 3, 2, 1].map((rating) => ({
       rating,
