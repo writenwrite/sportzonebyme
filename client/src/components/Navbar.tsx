@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, User, Search, Menu, X, LogOut, Heart } from 'lucide-react';
+import { ShoppingBag, User, Search, Menu, X, LogOut, Heart, Sun, Moon } from 'lucide-react';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { logout } from '../features/authSlice';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +15,7 @@ export default function Navbar() {
   const { productIds } = useAppSelector((state) => state.wishlist);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -44,19 +46,19 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-8">
             <Link
               to="/catalog"
-              className="text-gray-300 hover:text-gold-500 transition-colors"
+              className="text-gray-300 hover:text-gold-500 transition-colors dark:text-gray-300 text-gray-600"
             >
               Shop
             </Link>
             <Link
               to="/catalog?category=running"
-              className="text-gray-300 hover:text-gold-500 transition-colors"
+              className="text-gray-300 hover:text-gold-500 transition-colors dark:text-gray-300 text-gray-600"
             >
               Running
             </Link>
             <Link
               to="/catalog?category=clothing"
-              className="text-gray-300 hover:text-gold-500 transition-colors"
+              className="text-gray-300 hover:text-gold-500 transition-colors dark:text-gray-300 text-gray-600"
             >
               Clothing
             </Link>
@@ -64,10 +66,19 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-gray-300 hover:text-gold-500 transition-colors dark:text-gray-300 text-gray-600"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
             {/* Search */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              className="p-2 text-gray-300 hover:text-gold-500 transition-colors"
+              className="p-2 text-gray-300 hover:text-gold-500 transition-colors dark:text-gray-300 text-gray-600"
             >
               <Search size={20} />
             </button>
@@ -75,7 +86,7 @@ export default function Navbar() {
             {/* Wishlist */}
             <Link
               to="/wishlist"
-              className="p-2 text-gray-300 hover:text-gold-500 transition-colors relative"
+              className="p-2 text-gray-300 hover:text-gold-500 transition-colors relative dark:text-gray-300 text-gray-600"
             >
               <Heart size={20} />
               {productIds.length > 0 && (
@@ -88,7 +99,7 @@ export default function Navbar() {
             {/* Cart */}
             <Link
               to="/cart"
-              className="p-2 text-gray-300 hover:text-gold-500 transition-colors relative"
+              className="p-2 text-gray-300 hover:text-gold-500 transition-colors relative dark:text-gray-300 text-gray-600"
             >
               <ShoppingBag size={20} />
               {cartCount > 0 && (
@@ -101,37 +112,37 @@ export default function Navbar() {
             {/* User Menu */}
             {user ? (
               <div className="relative group">
-                <button className="p-2 text-gray-300 hover:text-gold-500 transition-colors">
+                <button className="p-2 text-gray-300 hover:text-gold-500 transition-colors dark:text-gray-300 text-gray-600">
                   <User size={20} />
                 </button>
-                <div className="absolute right-0 top-full mt-2 w-48 bg-dark-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                  <div className="p-3 border-b border-dark-200">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-dark-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all border border-gray-200 dark:border-dark-200">
+                  <div className="p-3 border-b border-gray-200 dark:border-dark-200">
                     <p className="text-sm font-medium">{user.name}</p>
                     <p className="text-xs text-gray-400">{user.email}</p>
                   </div>
                   <Link
                     to="/profile"
-                    className="block px-4 py-2 text-sm hover:bg-dark-200"
+                    className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-dark-200"
                   >
                     Profile
                   </Link>
                   <Link
                     to="/orders"
-                    className="block px-4 py-2 text-sm hover:bg-dark-200"
+                    className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-dark-200"
                   >
                     Orders
                   </Link>
                   {user.role === 'ADMIN' && (
                     <Link
                       to="/admin"
-                      className="block px-4 py-2 text-sm hover:bg-dark-200"
+                      className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-dark-200"
                     >
                       Admin Panel
                     </Link>
                   )}
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-dark-200"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-gray-100 dark:hover:bg-dark-200"
                   >
                     <LogOut size={16} />
                     Logout
@@ -141,7 +152,7 @@ export default function Navbar() {
             ) : (
               <Link
                 to="/login"
-                className="text-gray-300 hover:text-gold-500 transition-colors"
+                className="text-gray-300 hover:text-gold-500 transition-colors dark:text-gray-300 text-gray-600"
               >
                 <User size={20} />
               </Link>
@@ -150,7 +161,7 @@ export default function Navbar() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-2 text-gray-300"
+              className="md:hidden p-2 text-gray-300 dark:text-gray-300 text-gray-600"
             >
               {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -166,7 +177,7 @@ export default function Navbar() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products..."
-                className="flex-1 px-4 py-2 bg-dark-200 rounded-lg border border-dark-100 focus:outline-none focus:border-gold-500"
+                className="flex-1 px-4 py-2 bg-white dark:bg-dark-200 rounded-lg border border-gray-200 dark:border-dark-100 focus:outline-none focus:border-gold-500"
                 autoFocus
               />
               <button
@@ -181,24 +192,24 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-dark-200">
+          <div className="md:hidden py-4 border-t border-gray-200 dark:border-dark-200">
             <Link
               to="/catalog"
-              className="block py-2 text-gray-300 hover:text-gold-500"
+              className="block py-2 text-gray-300 hover:text-gold-500 dark:text-gray-300 text-gray-600"
               onClick={() => setIsOpen(false)}
             >
               Shop
             </Link>
             <Link
               to="/catalog?category=running"
-              className="block py-2 text-gray-300 hover:text-gold-500"
+              className="block py-2 text-gray-300 hover:text-gold-500 dark:text-gray-300 text-gray-600"
               onClick={() => setIsOpen(false)}
             >
               Running
             </Link>
             <Link
               to="/catalog?category=clothing"
-              className="block py-2 text-gray-300 hover:text-gold-500"
+              className="block py-2 text-gray-300 hover:text-gold-500 dark:text-gray-300 text-gray-600"
               onClick={() => setIsOpen(false)}
             >
               Clothing

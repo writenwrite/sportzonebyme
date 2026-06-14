@@ -4,6 +4,7 @@ import { useAppDispatch } from './hooks/useAppDispatch';
 import { getMe } from './features/authSlice';
 import { fetchCart } from './features/cartSlice';
 import { fetchWishlist } from './features/wishlistSlice';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 import Layout from './components/Layout';
 import Home from './pages/Home';
@@ -35,7 +36,7 @@ function App() {
   }, [dispatch]);
 
   return (
-    <>
+    <ThemeProvider>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
@@ -55,7 +56,7 @@ function App() {
         </Route>
       </Routes>
       <AIChat />
-    </>
+    </ThemeProvider>
   );
 }
 

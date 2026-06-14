@@ -14,12 +14,33 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dark Theme (Default) */
+.dark body {
+  background-color: #0d1117;
+  color: #ffffff;
+}
+
+/* Light Theme */
+body {
+  background-color: #ffffff;
+  color: #212529;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dark body {
+  transition: background-color 0.3s, color 0.3s;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
 }
 
-::-webkit-scrollbar-track {
+.dark ::-webkit-scrollbar-track {
   background: #0A0A1A;
+}
+
+.light ::-webkit-scrollbar-track {
+  background: #e9ecef;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -31,10 +52,50 @@ body {
   background: #D4A517;
 }
 
+/* Dark Theme Classes */
+.dark .bg-dark-50 { background-color: #f8f9fa; }
+.dark .bg-dark-100 { background-color: #e9ecef; }
+.dark .bg-dark-200 { background-color: #212529; }
+.dark .bg-dark-300 { background-color: #1a1d21; }
+.dark .bg-dark-400 { background-color: #14171a; }
+.dark .bg-dark-500 { background-color: #0d1117; }
+
+.dark .text-dark-50 { color: #f8f9fa; }
+.dark .text-dark-100 { color: #e9ecef; }
+.dark .text-dark-200 { color: #212529; }
+.dark .text-dark-300 { color: #1a1d21; }
+
+.dark .border-dark-100 { border-color: #e9ecef; }
+.dark .border-dark-200 { border-color: #212529; }
+.dark .border-dark-300 { border-color: #1a1d21; }
+
+/* Light Theme Classes */
+.light .bg-dark-50 { background-color: #ffffff; }
+.light .bg-dark-100 { background-color: #f8f9fa; }
+.light .bg-dark-200 { background-color: #ffffff; }
+.light .bg-dark-300 { background-color: #f8f9fa; }
+.light .bg-dark-400 { background-color: #e9ecef; }
+.light .bg-dark-500 { background-color: #dee2e6; }
+
+.light .text-dark-50 { color: #212529; }
+.light .text-dark-100 { color: #495057; }
+.light .text-dark-200 { color: #6c757d; }
+.light .text-dark-300 { color: #adb5bd; }
+
+.light .border-dark-100 { border-color: #dee2e6; }
+.light .border-dark-200 { border-color: #ced4da; }
+.light .border-dark-300 { border-color: #adb5bd; }
+
+/* Glass Effect */
 .glass-effect {
   background: rgba(26, 26, 46, 0.8);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 199, 38, 0.1);
+}
+
+.light .glass-effect {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .gold-glow {
