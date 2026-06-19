@@ -126,9 +126,9 @@ async function main() {
       stock: 80,
       tags: JSON.stringify(['hiking', 'boot', 'waterproof']),
       images: [
-        { url: 'https://images.unsplash.com/photo-1605812860320-3e8d87e2e8e0?w=800', alt: 'TrailBlazer Boot - Side', isPrimary: true },
-        { url: 'https://images.unsplash.com/photo-1520256862855-398228c41684?w=800', alt: 'TrailBlazer Boot - Detail', isPrimary: false },
-        { url: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=800', alt: 'TrailBlazer Boot - Sole', isPrimary: false },
+        { url: 'https://images.unsplash.com/photo-1520256862855-398228c41684?w=800', alt: 'TrailBlazer Boot - Side', isPrimary: true },
+        { url: 'https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=800', alt: 'TrailBlazer Boot - Front', isPrimary: false },
+        { url: 'https://images.unsplash.com/photo-1605812860320-3e8d87e2e8e0?w=800', alt: 'TrailBlazer Boot - Detail', isPrimary: false },
       ],
       variants: [
         { name: 'Brown', sku: 'TBH-001-BRN', size: '10', color: 'Brown', colorCode: '#8B4513', stock: 20 },
