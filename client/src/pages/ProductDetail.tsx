@@ -115,12 +115,12 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="pt-20 pb-12">
+    <div className="pt-20 pb-12 bg-theme-primary text-theme-primary transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
           {/* Images */}
           <div>
-            <div className="aspect-square rounded-xl overflow-hidden mb-4 bg-dark-200">
+            <div className="aspect-square rounded-xl overflow-hidden mb-4 bg-theme-secondary">
               <img
                 src={product.images[selectedImage]?.url}
                 alt={product.name}
@@ -135,7 +135,7 @@ export default function ProductDetail() {
                   className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
                     selectedImage === index
                       ? 'border-gold-500 ring-2 ring-gold-500/30'
-                      : 'border-dark-100 hover:border-dark-100/50'
+                      : 'border-theme hover:border-theme-hover'
                   }`}
                 >
                   <img
@@ -157,8 +157,8 @@ export default function ProductDetail() {
               </span>
               {product.brand && (
                 <>
-                  <span className="text-dark-100">|</span>
-                  <span className="text-sm text-gray-400">{product.brand}</span>
+                  <span className="text-theme-muted">|</span>
+                  <span className="text-sm text-theme-muted">{product.brand}</span>
                 </>
               )}
             </div>
@@ -178,21 +178,21 @@ export default function ProductDetail() {
                     />
                   ))}
                 </div>
-                <span className="text-white font-medium ml-1">{product.rating.toFixed(1)}</span>
+                <span className="text-theme-primary font-medium ml-1">{product.rating.toFixed(1)}</span>
               </div>
-              <span className="text-gray-400">
+              <span className="text-theme-muted">
                 ({product.reviewCount} reviews)
               </span>
             </div>
 
             {/* Price */}
-            <div className="flex items-center gap-4 mb-6 p-4 bg-dark-300 rounded-xl">
+            <div className="flex items-center gap-4 mb-6 p-4 bg-theme-secondary rounded-xl border border-theme transition-colors duration-300">
               <span className="text-3xl font-bold text-gold-500">
                 ${product.price.toFixed(2)}
               </span>
               {product.comparePrice && (
                 <>
-                  <span className="text-xl text-gray-500 line-through">
+                  <span className="text-xl text-theme-muted line-through">
                     ${product.comparePrice.toFixed(2)}
                   </span>
                   <span className="px-3 py-1 bg-green-500/20 text-green-500 text-sm font-bold rounded-full">
@@ -203,7 +203,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Description */}
-            <p className="text-gray-300 mb-6 leading-relaxed">{product.description}</p>
+            <p className="text-theme-secondary mb-6 leading-relaxed">{product.description}</p>
 
             {/* Stock Status */}
             <div className="mb-6">
@@ -231,7 +231,7 @@ export default function ProductDetail() {
                       className={`px-4 py-2.5 rounded-lg border-2 font-medium transition-all ${
                         selectedColor === color
                           ? 'border-gold-500 bg-gold-500/10 text-gold-500'
-                          : 'border-dark-100 hover:border-dark-100/50 text-gray-300'
+                          : 'border-theme hover:border-theme-hover text-theme-secondary'
                       }`}
                     >
                       {color}
@@ -269,8 +269,8 @@ export default function ProductDetail() {
                           selectedSize === size
                             ? 'border-gold-500 bg-gold-500/10 text-gold-500'
                             : sizeInStock
-                            ? 'border-dark-100 hover:border-dark-100/50 text-gray-300'
-                            : 'border-dark-100 opacity-40 cursor-not-allowed text-gray-500'
+                            ? 'border-theme hover:border-theme-hover text-theme-secondary'
+                            : 'border-theme opacity-40 cursor-not-allowed text-theme-muted'
                         }`}
                       >
                         {size}
@@ -289,7 +289,7 @@ export default function ProductDetail() {
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   disabled={quantity <= 1}
-                  className="w-10 h-10 rounded-lg border-2 border-dark-100 flex items-center justify-center hover:border-gold-500 hover:text-gold-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-10 h-10 rounded-lg border-2 border-theme flex items-center justify-center hover:border-gold-500 hover:text-gold-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Minus size={16} />
                 </button>
@@ -297,7 +297,7 @@ export default function ProductDetail() {
                 <button
                   onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
                   disabled={quantity >= currentStock}
-                  className="w-10 h-10 rounded-lg border-2 border-dark-100 flex items-center justify-center hover:border-gold-500 hover:text-gold-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-10 h-10 rounded-lg border-2 border-theme flex items-center justify-center hover:border-gold-500 hover:text-gold-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Plus size={16} />
                 </button>
@@ -319,7 +319,7 @@ export default function ProductDetail() {
                 className={`p-4 border-2 rounded-xl transition-all ${
                   isWishlisted
                     ? 'border-red-500 text-red-500 bg-red-500/10'
-                    : 'border-dark-100 hover:border-gold-500 hover:text-gold-500'
+                    : 'border-theme hover:border-gold-500 hover:text-gold-500'
                 }`}
               >
                 <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
@@ -327,18 +327,18 @@ export default function ProductDetail() {
             </div>
 
             {/* Features */}
-            <div className="grid grid-cols-3 gap-4 p-4 bg-dark-300 rounded-xl">
+            <div className="grid grid-cols-3 gap-4 p-4 bg-theme-secondary rounded-xl border border-theme transition-colors duration-300">
               <div className="text-center">
                 <Truck className="w-6 h-6 text-gold-500 mx-auto mb-2" />
-                <p className="text-xs text-gray-400">Free Shipping</p>
+                <p className="text-xs text-theme-muted">Free Shipping</p>
               </div>
               <div className="text-center">
                 <Shield className="w-6 h-6 text-gold-500 mx-auto mb-2" />
-                <p className="text-xs text-gray-400">2 Year Warranty</p>
+                <p className="text-xs text-theme-muted">2 Year Warranty</p>
               </div>
               <div className="text-center">
                 <RotateCcw className="w-6 h-6 text-gold-500 mx-auto mb-2" />
-                <p className="text-xs text-gray-400">30 Day Returns</p>
+                <p className="text-xs text-theme-muted">30 Day Returns</p>
               </div>
             </div>
           </div>
@@ -354,8 +354,8 @@ export default function ProductDetail() {
               {user ? (
                 <ReviewForm productId={product.id} onSuccess={handleReviewSuccess} />
               ) : (
-                <div className="bg-dark-200 rounded-xl p-6 text-center">
-                  <p className="text-gray-400 mb-4">Login to write a review</p>
+                <div className="bg-theme-card rounded-xl p-6 text-center border border-theme transition-colors duration-300">
+                  <p className="text-theme-muted mb-4">Login to write a review</p>
                   <a
                     href="/login"
                     className="inline-block px-6 py-2.5 bg-gold-500 text-dark-300 rounded-lg font-bold hover:bg-gold-600 transition-colors"

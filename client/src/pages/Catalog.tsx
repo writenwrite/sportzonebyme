@@ -63,7 +63,7 @@ export default function Catalog() {
   };
 
   return (
-    <div className="pt-20 pb-12">
+    <div className="pt-20 pb-12 bg-theme-primary text-theme-primary transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -73,13 +73,13 @@ export default function Catalog() {
                 ? categories.find((c) => c.slug === filters.category)?.name || 'Products'
                 : 'All Products'}
             </h1>
-            <p className="text-gray-400 mt-1">{pagination.total} products found</p>
+            <p className="text-theme-muted mt-1">{pagination.total} products found</p>
           </div>
           <div className="flex items-center gap-4">
             <select
               value={filters.sort}
               onChange={(e) => handleFilterChange('sort', e.target.value)}
-              className="px-4 py-2 bg-dark-200 border border-dark-100 rounded-lg focus:outline-none focus:border-gold-500"
+              className="px-4 py-2 bg-theme-card border border-theme rounded-lg focus:outline-none focus:border-gold-500 transition-colors"
             >
               <option value="createdAt">Newest</option>
               <option value="price">Price: Low to High</option>
@@ -88,7 +88,7 @@ export default function Catalog() {
             </select>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="p-2 bg-dark-200 border border-dark-100 rounded-lg hover:border-gold-500 md:hidden"
+              className="p-2 bg-theme-card border border-theme rounded-lg hover:border-gold-500 md:hidden transition-colors"
             >
               <SlidersHorizontal size={20} />
             </button>
@@ -102,10 +102,10 @@ export default function Catalog() {
               showFilters ? 'block' : 'hidden'
             } md:block w-full md:w-64 flex-shrink-0`}
           >
-            <div className="bg-dark-200 rounded-lg p-4 sticky top-24">
+            <div className="bg-theme-card rounded-lg p-4 sticky top-24 border border-theme transition-colors duration-300">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold">Filters</h3>
-                <button onClick={clearFilters} className="text-sm text-gold-500">
+                <button onClick={clearFilters} className="text-sm text-gold-500 hover:text-gold-600 transition-colors">
                   Clear All
                 </button>
               </div>
@@ -123,9 +123,9 @@ export default function Catalog() {
                         onChange={() => handleFilterChange('category', category.slug)}
                         className="accent-gold-500"
                       />
-                      <span className="text-sm text-gray-300">
+                      <span className="text-sm text-theme-secondary">
                         {category.name}
-                        <span className="text-gray-500 ml-1">
+                        <span className="text-theme-muted ml-1">
                           ({category._count?.products || 0})
                         </span>
                       </span>
@@ -143,14 +143,14 @@ export default function Catalog() {
                     placeholder="Min"
                     value={filters.minPrice}
                     onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                    className="w-1/2 px-3 py-2 bg-dark-300 border border-dark-100 rounded text-sm focus:outline-none focus:border-gold-500"
+                    className="w-1/2 px-3 py-2 bg-theme-input border border-theme rounded text-sm focus:outline-none focus:border-gold-500 transition-colors"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={filters.maxPrice}
                     onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                    className="w-1/2 px-3 py-2 bg-dark-300 border border-dark-100 rounded text-sm focus:outline-none focus:border-gold-500"
+                    className="w-1/2 px-3 py-2 bg-theme-input border border-theme rounded text-sm focus:outline-none focus:border-gold-500 transition-colors"
                   />
                 </div>
               </div>
@@ -163,7 +163,7 @@ export default function Catalog() {
                   placeholder="Filter by brand..."
                   value={filters.brand}
                   onChange={(e) => handleFilterChange('brand', e.target.value)}
-                  className="w-full px-3 py-2 bg-dark-300 border border-dark-100 rounded text-sm focus:outline-none focus:border-gold-500"
+                  className="w-full px-3 py-2 bg-theme-input border border-theme rounded text-sm focus:outline-none focus:border-gold-500 transition-colors"
                 />
               </div>
 
@@ -216,11 +216,11 @@ export default function Catalog() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="animate-pulse">
-                    <div className="aspect-square bg-dark-200 rounded-lg" />
+                    <div className="aspect-square bg-theme-card rounded-xl" />
                     <div className="mt-4 space-y-2">
-                      <div className="h-4 bg-dark-200 rounded w-1/3" />
-                      <div className="h-4 bg-dark-200 rounded w-2/3" />
-                      <div className="h-4 bg-dark-200 rounded w-1/4" />
+                      <div className="h-4 bg-theme-card rounded w-1/3" />
+                      <div className="h-4 bg-theme-card rounded w-2/3" />
+                      <div className="h-4 bg-theme-card rounded w-1/4" />
                     </div>
                   </div>
                 ))}
@@ -233,10 +233,10 @@ export default function Catalog() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-400">No products found</p>
+                <p className="text-theme-muted">No products found</p>
                 <button
                   onClick={clearFilters}
-                  className="mt-4 text-gold-500 hover:text-gold-600"
+                  className="mt-4 text-gold-500 hover:text-gold-600 transition-colors"
                 >
                   Clear filters
                 </button>
@@ -255,10 +255,10 @@ export default function Catalog() {
                       params.set('page', String(i + 1));
                       setSearchParams(params);
                     }}
-                    className={`px-4 py-2 rounded-lg ${
+                    className={`px-4 py-2 rounded-lg transition-colors ${
                       pagination.page === i + 1
                         ? 'bg-gold-500 text-dark-300'
-                        : 'bg-dark-200 hover:bg-dark-100'
+                        : 'bg-theme-card hover:bg-theme-secondary border border-theme'
                     }`}
                   >
                     {i + 1}

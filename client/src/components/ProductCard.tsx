@@ -53,10 +53,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       to={`/catalog/${product.slug}`}
-      className="group block bg-dark-200 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-gold-500/10 transition-all duration-300"
+      className="group block bg-theme-card rounded-xl overflow-hidden hover:shadow-lg hover:shadow-gold-500/10 transition-all duration-300 border border-theme"
     >
       {/* Image */}
-      <div className="relative aspect-square overflow-hidden bg-dark-300">
+      <div className="relative aspect-square overflow-hidden bg-theme-secondary">
         <img
           src={product.images[0]?.url}
           alt={product.name}
@@ -99,7 +99,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             className={`p-2.5 rounded-lg transition-colors ${
               isWishlisted
                 ? 'bg-red-500 text-white'
-                : 'bg-dark-300/80 text-white hover:bg-red-500'
+                : 'bg-white/80 dark:bg-dark-300/80 text-gray-700 dark:text-white hover:bg-red-500 hover:text-white'
             }`}
           >
             <Heart size={16} fill={isWishlisted ? 'currentColor' : 'none'} />
@@ -112,13 +112,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         <p className="text-xs text-gold-500 font-medium mb-1.5 uppercase tracking-wider">
           {product.category.name}
         </p>
-        <h3 className="font-semibold text-white group-hover:text-gold-500 transition-colors mb-2 line-clamp-2">
+        <h3 className="font-semibold text-theme-primary group-hover:text-gold-500 transition-colors mb-2 line-clamp-2">
           {product.name}
         </h3>
         <div className="flex items-center gap-2 mb-2">
           <span className="text-lg font-bold text-gold-500">${product.price.toFixed(2)}</span>
           {product.comparePrice && (
-            <span className="text-sm text-gray-500 line-through">
+            <span className="text-sm text-theme-muted line-through">
               ${product.comparePrice.toFixed(2)}
             </span>
           )}

@@ -22,10 +22,10 @@ export default function Home() {
   }, [dispatch]);
 
   return (
-    <div>
+    <div className="bg-theme-primary text-theme-primary transition-colors duration-300">
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-dark-300 via-dark-200 to-dark-300" />
+        <div className="absolute inset-0 bg-gradient-to-r from-dark-400 via-dark-300 to-dark-400 dark:from-dark-500 dark:via-dark-400 dark:to-dark-500" />
         <div
           className="absolute inset-0 opacity-20"
           style={{
@@ -63,13 +63,13 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="py-12 border-b border-dark-100">
+      <section className="py-12 border-b border-theme transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
           {features.map((feature, index) => (
             <div key={index} className="text-center p-4">
               <feature.icon className="w-8 h-8 text-gold-500 mx-auto mb-3" />
               <h3 className="font-semibold mb-1">{feature.title}</h3>
-              <p className="text-sm text-gray-400">{feature.desc}</p>
+              <p className="text-sm text-theme-muted">{feature.desc}</p>
             </div>
           ))}
         </div>
@@ -82,7 +82,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold">Featured Products</h2>
             <Link
               to="/catalog"
-              className="text-gold-500 hover:text-gold-600 flex items-center gap-1"
+              className="text-gold-500 hover:text-gold-600 flex items-center gap-1 transition-colors"
             >
               View All <ArrowRight size={16} />
             </Link>
@@ -98,7 +98,7 @@ export default function Home() {
       {/* AI CTA */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-gradient-to-r from-dark-100 to-dark-200 rounded-2xl p-8 md:p-12 relative overflow-hidden">
+          <div className="bg-gradient-to-r from-theme-secondary to-theme-tertiary rounded-2xl p-8 md:p-12 relative overflow-hidden border border-theme transition-colors duration-300">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/10 rounded-full blur-3xl" />
             <div className="relative z-10 max-w-2xl">
               <span className="text-gold-500 font-semibold mb-2 block">
@@ -107,7 +107,7 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 Meet Your Personal Style Advisor
               </h2>
-              <p className="text-gray-300 mb-6">
+              <p className="text-theme-secondary mb-6">
                 Our AI assistant helps you find the perfect outfit, answers your questions
                 about sizing and shipping, and provides personalized recommendations.
               </p>

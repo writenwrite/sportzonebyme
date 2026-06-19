@@ -23,8 +23,6 @@ import reviewRoutes from './routes/review.routes';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
 
-dotenv.config();
-
 const app = express();
 const server = createServer(app);
 const PORT = process.env.PORT || 3001;
